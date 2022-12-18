@@ -3,6 +3,8 @@ import { useRef, useState } from "react";
 const SimpleInput = (props) => {
   const nameInputRef = useRef();
   const [enteredName, setEnteredName] = useState("");
+  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
+
   // 1 Approach
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
@@ -10,6 +12,13 @@ const SimpleInput = (props) => {
   // 2 Approach
   const formSubmissionHandler = (event) => {
     event.preventDefault();
+
+    if (enteredName.trim() === "") {
+      setEnteredNameIsValid(false);
+      return;
+    }
+
+    setEnteredNameIsValid(true);
 
     console.log(enteredName);
 
@@ -31,6 +40,7 @@ const SimpleInput = (props) => {
           onChange={nameInputChangeHandler}
           value={enteredName}
         />
+        <p>Name must not be empty</p>
       </div>
       <div className="form-actions">
         <button>Submit</button>
@@ -61,5 +71,18 @@ export default SimpleInput;
 // Reason for using a state instead of a ref could be, if you want to reset the entered input -> let's do it
 // 1.8 Call "setEnteredName("")" and set it an empty string. And all now need to do is bind the "enteredValue" back to the input through the value prop. (" value={enteredName}" in JSX)
 // With fers, I could also use your ref and access the input element which is stored in that ref, and set value equal to an empty string. ("nameInputRef.current.value = "") It works, but not ideal (DONT MANIPULATE THE DOM)
-
 // ~~ FORM SUBMISSION & GETTING USER INPUT VALUES ~~
+
+// ~~ ADDING BASIC VALIDATION ~~
+// How we could validate this and make sure that we show an error and don't log the values to the console if tryed to submit empty field?
+// We can go to "formSubmissionHandler", and add "ifcheck"
+// STEP: 1
+// 1.1 Add "ifcheck": check if the "enteredName" from "useState("")" is empty. Add "trim()" to trim all spaces. The exact validation logic you need depends on the form input value you are expecting, if it's just some name, you might be fine with just checking hat it's not empty.
+// 1.2 If we have an empty string here, then I don't want to continue with the next lines of code. Because here ("console.log(enteredName)") we are using the "enteredValue", and I don't want to do that if that value is empty --->>> add "return" which returns from this overall function and therefore cancels the function execution.
+// STEP: 2
+// We can manage more state for validation
+// 1.1 Add "enteredNameIsValid" state with "useState(false)" - because initially the entered name is not valid. Set it to "true", then entered name is valid.
+// 1.2 Then input is invalid a want to "setEnteredNameIsValid" to false because it is not valid. If we make it pass this "ifcheck", we can "setEnteredNameIsValid" to true.
+// 1.3 Let's use "enteredNameIsValid" to show an error message. Add error below input in JSX code.
+// 1.4 I only want to show this paragraph if "enteredNameIsValid" is false
+// ~~ ADDING BASIC VALIDATION ~~
