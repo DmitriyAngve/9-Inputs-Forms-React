@@ -1,9 +1,16 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SimpleInput = (props) => {
   const nameInputRef = useRef();
   const [enteredName, setEnteredName] = useState("");
   const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+
+  useEffect(() => {
+    if (enteredNameIsValid) {
+      console.log("Name Input is valid!");
+    }
+  }, [enteredNameIsValid]);
 
   // 1 Approach
   const nameInputChangeHandler = (event) => {
@@ -12,6 +19,8 @@ const SimpleInput = (props) => {
   // 2 Approach
   const formSubmissionHandler = (event) => {
     event.preventDefault();
+
+    setEnteredNameTouched(true);
 
     if (enteredName.trim() === "") {
       setEnteredNameIsValid(false);
@@ -29,9 +38,15 @@ const SimpleInput = (props) => {
     setEnteredName("");
   };
 
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
+
+  const nameInputClasses = enteredNameIsValid
+    ? "form-control invalid"
+    : "form-control";
+
   return (
     <form onSubmit={formSubmissionHandler}>
-      <div className="form-control">
+      <div className={nameInputClasses}>
         <label htmlFor="name">Your Name</label>
         <input
           ref={nameInputRef}
@@ -40,7 +55,9 @@ const SimpleInput = (props) => {
           onChange={nameInputChangeHandler}
           value={enteredName}
         />
-        <p>Name must not be empty</p>
+        {nameInputIsInvalid && (
+          <p className="error-text">Name must not be empty</p>
+        )}
       </div>
       <div className="form-actions">
         <button>Submit</button>
@@ -81,8 +98,29 @@ export default SimpleInput;
 // 1.2 If we have an empty string here, then I don't want to continue with the next lines of code. Because here ("console.log(enteredName)") we are using the "enteredValue", and I don't want to do that if that value is empty --->>> add "return" which returns from this overall function and therefore cancels the function execution.
 // STEP: 2
 // We can manage more state for validation
-// 1.1 Add "enteredNameIsValid" state with "useState(false)" - because initially the entered name is not valid. Set it to "true", then entered name is valid.
-// 1.2 Then input is invalid a want to "setEnteredNameIsValid" to false because it is not valid. If we make it pass this "ifcheck", we can "setEnteredNameIsValid" to true.
-// 1.3 Let's use "enteredNameIsValid" to show an error message. Add error below input in JSX code.
-// 1.4 I only want to show this paragraph if "enteredNameIsValid" is false
+// 2.1 Add "enteredNameIsValid" state with "useState(false)" - because initially the entered name is not valid. Set it to "true", then entered name is valid.
+// 2.2 Then input is invalid a want to "setEnteredNameIsValid" to false because it is not valid. If we make it pass this "ifcheck", we can "setEnteredNameIsValid" to true.
+// 2.3 Let's use "enteredNameIsValid" to show an error message. Add error below input in JSX code.
+// 2.4 I only want to show this paragraph if "enteredNameIsValid" is false: "{!enteredNameIsValid && <p>Name must not be empty</p>}"
+// 2.5 Add predefined CSS class: "<p className="error-text"..."
+// 2.6 EDIT from 1.1 -> useState(true)" set to true for don't see error initially.
+// 2.7 Let's swap css-classes from "form-control" to "invalid" if this input is invalid.
+// 2.8 For it add new const: "const nameInputClasses = enteredNameIsValid ? "form-control" : "form-control invalid""
+// 2.9 Add dynamic class name in JSX code:
+// "<div className=nameInputClasses}>"
 // ~~ ADDING BASIC VALIDATION ~~
+
+//
+
+// ~~ "WAS TOUCHED" STATE ~~
+// "const [enteredNameIsValid, setEnteredNameIsValid] = useState(true);" - its incorrect, because after first load the page we can restart "useEffect" if we use it. In other words: "enteredNameIsValid" in begining - really?
+// STEP: 1
+// 1.1 Let's change to "false" because the input is invalid initially.
+// 1.2 To avoid error message initially we add third state: "const [enteredNameTouched, setEnteredNameTouched] = useState(false)". False - because initially this input is untouched.
+// 1.3 Now we can use "enteredNameTouched" in compination with "enteredNameIsValid" to show this error message and add invalid css class.
+// 1.3.1 For that add new "const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched"
+// 1.3.2 Replace: "{nameInputIsInvalid && (<p className="error-text">Name must not be empty</p> )}"
+// 1.3.3 Replace: "const nameInputClasses = enteredNameIsValid ? "form-control invalid" : "form-control""
+// 1.4 For form submitted: before checking validity we need set "setEnteredNameTouched(true)"
+
+// ~~ "WAS TOUCHED" STATE ~~
