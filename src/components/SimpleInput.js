@@ -15,7 +15,22 @@ const SimpleInput = (props) => {
   // 1 Approach
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
+
+    if (event.target.value.trim() !== "") {
+      setEnteredNameIsValid(true);
+      return;
+    }
   };
+
+  // Blur
+  const nameInputBlurHandler = (event) => {
+    setEnteredNameTouched(true);
+
+    if (enteredName.trim() === "") {
+      setEnteredNameIsValid(false);
+    }
+  };
+
   // 2 Approach
   const formSubmissionHandler = (event) => {
     event.preventDefault();
@@ -53,6 +68,7 @@ const SimpleInput = (props) => {
           type="text"
           id="name"
           onChange={nameInputChangeHandler}
+          onBlur={nameInputBlurHandler}
           value={enteredName}
         />
         {nameInputIsInvalid && (
@@ -122,5 +138,23 @@ export default SimpleInput;
 // 1.3.2 Replace: "{nameInputIsInvalid && (<p className="error-text">Name must not be empty</p> )}"
 // 1.3.3 Replace: "const nameInputClasses = enteredNameIsValid ? "form-control invalid" : "form-control""
 // 1.4 For form submitted: before checking validity we need set "setEnteredNameTouched(true)"
-
 // ~~ "WAS TOUCHED" STATE ~~
+
+// ~~ REACT TO LOSE FOCUS ~~
+// STEP: 1
+// 1.1 We might want to also validate on blur as it's called which means when the input loses focus. Add "onBlur"
+// 1.2 Into JSXt code we add "onBlur={}" handler and that's a built in event which fires whenever this input loses focus. Add a new function for in handler
+// 1.3 "const nameInputBlurHandler = event => {}" with default event. And when I wanna "bind" this "nameInputBlurHandler" to "onBlur" input
+// 1.4 In "nameInputBlurHandler" I wanna do two things:
+// 1.4.1 I wanna "setEnteredNameTouched(true)" to true, because if our input loses focus, it definitely was touched
+// 1.4.2 In addition we might want to start validation (run "ifcheck" logic again) -> this logic -> "if (enteredName.trim() === "") {   setEnteredNameIsValid(false);}" COPY this code and put in "nameInputBlurHandler". So if we check the "enteredNname" which update with every keystroke still and we "setEnteredNameIsValid" false if that name is valid. Here no need "return", because is no code to execute after the "if" statement
+// ~~ REACT TO LOSE FOCUS ~~
+
+// ~~ REFACTORING AND DERIVING STATE ~~
+// STEP: 1
+// 1.1 Implement validate on every keystroke. Add "ifcheck" validation logic to the "nameInputChangeHandler" with another logic: "if (enteredName.trim() !== "") {setEnteredNameIsValid(true);}" here no need "return", because is no code to execute after the "if" statement
+// 1.2 Now in "nameInputChengeHandler", though here we shouldn't use the "enteredName" state, but instead "event.target.value", because we do update the "enteredName" state with this "event.target.value", such state updates are then scheduled by react, they are not processed immediately, so in the next line thereafter, you don't have that latest state yet, hence here you would be reffering to an old state if I used "entredName"
+// STEP: 2
+// CleaninUP code.
+// 2.1
+// ~~ REFACTORING AND DERIVING STATE ~~
