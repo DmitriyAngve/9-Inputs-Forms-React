@@ -1,11 +1,12 @@
 // import { useEffect, useRef, useState } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const SimpleInput = (props) => {
   // const nameInputRef = useRef();
   // const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
   const [enteredName, setEnteredName] = useState("");
   const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const [formIsValid, setFormIsValid] = useState(false);
 
   // useEffect(() => {
   //   if (enteredNameIsValid) {
@@ -15,6 +16,14 @@ const SimpleInput = (props) => {
 
   const enteredNameIsValid = enteredName.trim() !== "";
   const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
+
+  useEffect(() => {
+    if (enteredNameIsValid) {
+      setFormIsValid(true);
+    } else {
+      setFormIsValid(false);
+    }
+  }, [enteredNameIsValid]);
 
   // 1 Approach
   const nameInputChangeHandler = (event) => {
@@ -67,7 +76,7 @@ const SimpleInput = (props) => {
         )}
       </div>
       <div className="form-actions">
-        <button>Submit</button>
+        <button disabled={!formIsValid}>Submit</button>
       </div>
     </form>
   );
@@ -160,3 +169,19 @@ export default SimpleInput;
 // 2.11 Rid of: "setEnteredNameIsValid(true)" - because we got all the code related to that.
 // 2.12 Now we wanna reset the touched state once we submit the form. In "formSubmissionHandler" after "setEnteredName("")" add "setEnteredNameTouched(false)" back to false, to reset the touched state
 // ~~ REFACTORING AND DERIVING STATE ~~
+
+//
+
+// ~~ MANAGING THE OVERALL FORM VALIDITY ~~
+// Case with may inputs and separate validity
+// STEP: 1
+// 1.1 Add a new state: "const [formIsValid, setFormIsValid] = useState(false)" initially is "false", because that form isn't valid initially.
+// Now I wanna update this overall "formIsValid" updating function whenever one of the forum inputs changes, for that we could use "useEffect".
+// 1.2 Import "useEffect"
+// 1.3 Call "useEffect". In this "useEffect" I want to set the overall form validity. I'll add all the form inout validities I have in this form. Dont forget - we have only one entry ("enteredNameIsValid"). "  useEffect(() => {}, [enteredNameIsValid])"
+// In this "useEffect" call I combine all my dependencies and check if thy are all valid. And if they are, I wanna set the overall form to valid.
+// 1.4 Add "if(enteredNameIsValid)" and if that valid, then I'll set my overall form as valid "setFormISValid(true)". Else, if at least one of my inouts is valid (in my case only one) I'll set my overall form to invalid: "setFormIsValid(false)"
+// 1.5 OPTIONAL: we can disable "submit" button if form is not valid. For this need add in JSX code: "<button disabled={!formIsValid}>Submit</button>"
+// 1.5.1 Add style for this disable: in index.css "button:disabled,..."
+
+// ~~ MANAGING THE OVERALL FORM VALIDITY ~~
