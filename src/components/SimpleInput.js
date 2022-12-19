@@ -1,34 +1,29 @@
-import { useEffect, useRef, useState } from "react";
+// import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 const SimpleInput = (props) => {
-  const nameInputRef = useRef();
+  // const nameInputRef = useRef();
+  // const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
   const [enteredName, setEnteredName] = useState("");
-  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
   const [enteredNameTouched, setEnteredNameTouched] = useState(false);
 
-  useEffect(() => {
-    if (enteredNameIsValid) {
-      console.log("Name Input is valid!");
-    }
-  }, [enteredNameIsValid]);
+  // useEffect(() => {
+  //   if (enteredNameIsValid) {
+  //     console.log("Name Input is valid!");
+  //   }
+  // }, [enteredNameIsValid]);
+
+  const enteredNameIsValid = enteredName.trim() !== "";
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 
   // 1 Approach
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
-
-    if (event.target.value.trim() !== "") {
-      setEnteredNameIsValid(true);
-      return;
-    }
   };
 
   // Blur
   const nameInputBlurHandler = (event) => {
     setEnteredNameTouched(true);
-
-    if (enteredName.trim() === "") {
-      setEnteredNameIsValid(false);
-    }
   };
 
   // 2 Approach
@@ -37,23 +32,19 @@ const SimpleInput = (props) => {
 
     setEnteredNameTouched(true);
 
-    if (enteredName.trim() === "") {
-      setEnteredNameIsValid(false);
+    if (!enteredNameIsValid) {
       return;
     }
 
-    setEnteredNameIsValid(true);
-
     console.log(enteredName);
 
-    const enteredValue = nameInputRef.current.value;
-    console.log(enteredValue);
+    // const enteredValue = nameInputRef.current.value;
+    // console.log(enteredValue);
 
     // nameInputRef.current.value = "";
     setEnteredName("");
+    setEnteredNameTouched(false);
   };
-
-  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 
   const nameInputClasses = enteredNameIsValid
     ? "form-control invalid"
@@ -64,7 +55,7 @@ const SimpleInput = (props) => {
       <div className={nameInputClasses}>
         <label htmlFor="name">Your Name</label>
         <input
-          ref={nameInputRef}
+          // ref={nameInputRef}
           type="text"
           id="name"
           onChange={nameInputChangeHandler}
@@ -156,5 +147,16 @@ export default SimpleInput;
 // 1.2 Now in "nameInputChengeHandler", though here we shouldn't use the "enteredName" state, but instead "event.target.value", because we do update the "enteredName" state with this "event.target.value", such state updates are then scheduled by react, they are not processed immediately, so in the next line thereafter, you don't have that latest state yet, hence here you would be reffering to an old state if I used "entredName"
 // STEP: 2
 // CleaninUP code.
-// 2.1
+// 2.1 Rid of pieci of code where I use "nameInputRef" ("const enteredValue = nameInputRef.current.value;"), because I'm using state here to get the value, there is no need to keep the input ref around
+// 2.2 Rid of: "const nameInputRef = useRef()" and remove ref assignment in JSX code.
+// 2.3 Rid of: "useEffect(() => {} if (enteredNameIsValid) {..."
+// 2.4 Rid of: "const [enteredNameIsValid, setEnteredNameIsValid] = useState(false)" just need value and touched state., because "enteredNameIsValid" is simply something we can derive from "enteredName" state and since this entire component function will re-execute whenever a new value is entered we ensure "enteredNameIsValid" will always take into account the latest value and touched state. Because whenever one of these two states ("const [enteredName..." and "const [enteredNameTouched...") changes, "SimpleInput" Component function gets re-rendered
+// 2.5 Here is "const enteredNameIsValid = " I wanna store the result of cheking "enteredName.trim() !== " "", because this is "enteredNameIsValid" and that should be true if this yields true "enteredName.trim() !== " "".
+// 2.6 After this we can rid of all the parts of the code where we use "setEnteredNameIsValid", because deriving this result of "enteredNameIsValid" from already existing states like this is enough. We ensure that the component function gets re-rendered and gets reevaluated on every keystroke, which is exactly what we want.
+// 2.7 In "nameInputBlurHandler" don't need validate too, get rid this. And we can rely on "enteredNameIsValid" state combined with "nameInputIsInvalid", which takes "enteredNameIsValid" constant into account (which is based on the "enteredName") and combines that with "enteredNameTouched".
+// 2.8 These two lines of code work together ("enteredNameIsValid" and "nameInputIsInvalid"). We first find out if the "enteredName" was valid, and then we check if it's not valid and combine that information with "enteredNameTouched"
+// 2.9 Now in "formSubmissionHandler" still wanna keep "ifcheck". Though, to cancel the form submission if the input is invalid, but we don't need to set the validity, get rid of ("setEnteredNameIsValid(false)"),
+// 2.10 Instead here we can simply check if "enteredNameIsValid" is false: ("if (!enteredNameIsValid) {return;}") If it's not valid< I wanna return. This "formSubmissionHandler" also gets recreated when the component function is re-evaluated. So "formSubmissionHandler" function will have access to that latest inferred "entereNameIsValid" value.
+// 2.11 Rid of: "setEnteredNameIsValid(true)" - because we got all the code related to that.
+// 2.12 Now we wanna reset the touched state once we submit the form. In "formSubmissionHandler" after "setEnteredName("")" add "setEnteredNameTouched(false)" back to false, to reset the touched state
 // ~~ REFACTORING AND DERIVING STATE ~~
