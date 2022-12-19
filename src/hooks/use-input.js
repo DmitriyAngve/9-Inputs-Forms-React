@@ -1,30 +1,85 @@
-import { useState } from "react";
+// UseState
+// import { useState } from "react";
+
+// const useInput = (validateValue) => {
+//   const [enteredValue, setEnteredValue] = useState("");
+//   const [isTouched, setIsTouched] = useState(false);
+
+//   //   const valueIsValid = enteredValue.trim() !== "";
+//   const valueIsValid = validateValue(enteredValue);
+//   const hasError = !valueIsValid && isTouched;
+
+//   const valueChangeHandler = (event) => {
+//     setEnteredValue(event.target.value);
+//   };
+
+//   const inputBlurHandler = (event) => {
+//     setIsTouched(true);
+//   };
+
+//   const reset = () => {
+//     setEnteredValue("");
+//     setIsTouched(false);
+//   };
+
+//   return {
+//     value: enteredValue,
+//     isValid: valueIsValid,
+//     hasError: hasError,
+//     valueChangeHandler,
+//     inputBlurHandler,
+//     reset,
+//   };
+// };
+
+// export default useInput;
+
+// UseReducer
+import { useReducer } from "react";
+
+const initialInputState = {
+  value: "",
+  isTouched: false,
+};
+
+const inputStateReducer = (state, action) => {
+  if (action.type === "INPUT") {
+    return { value: action.value, isTouched: state.isTouched };
+  }
+  if (action.type === "BLUR") {
+    return { isTouched: true, value: state.value };
+  }
+  if (action.type === "RESET") {
+    return { isTouched: false, value: "" };
+  }
+  return inputStateReducer;
+};
 
 const useInput = (validateValue) => {
-  const [enteredValue, setEnteredValue] = useState("");
-  const [isTouched, setIsTouched] = useState(false);
+  const [inputState, dispatch] = useReducer(
+    inputStateReducer,
+    initialInputState
+  );
 
-  //   const valueIsValid = enteredValue.trim() !== "";
-  const valueIsValid = validateValue(enteredValue);
-  const hasError = !valueIsValid && isTouched;
+  const valueIsValid = validateValue(inputState.value);
+  const hasError = !valueIsValid && inputState.isTouched;
 
   const valueChangeHandler = (event) => {
-    setEnteredValue(event.target.value);
+    dispatch({ type: "INPUT", value: event.target.value });
   };
 
   const inputBlurHandler = (event) => {
-    setIsTouched(true);
+    dispatch({ type: "BLUR" });
   };
 
   const reset = () => {
-    setEnteredValue("");
-    setIsTouched(false);
+    dispatch({ type: "RESET" });
   };
 
   return {
-    value: enteredValue,
+    value: inputState.value,
     isValid: valueIsValid,
-    hasError: hasError,
+    hasError,
     valueChangeHandler,
     inputBlurHandler,
     reset,
@@ -59,3 +114,29 @@ export default useInput;
 // 3.2 And just need to expose that: add to "return" reset fucntion as a value in a reset key in that overall returned object.
 // GO TO ---->>>> SimpleInput.js
 // ~~ ADDING A CUSTOM INPUT HOOK ~~
+
+// ~~ USEREDUCER FUNCTION ~~
+// STEP: 1
+// 1.1 Import useReducer
+// 1.2 Add "useReducer" function: "const inputStateReducer = () => {..."
+// 1.3 It takes two main arguments: the previous "state" snapshot, which will be provided and passed in automatically by React; "action" which will also be passed into this function automatically by React, but which is the "action" you dispatched somewhere in your code.
+// 1.4 And then Return a new state snapshot. And we can return a default state snapshot, which we always return unless we change it in code we're about to add, and that could contain our" value: """, "isTouched: false"
+// 1.5 In hook call"useReducer()" and pass our "inputStateReducer" function to "useReducer" and also provide our initial state, which is basically this state (returned in "inputStateReducer").
+// 1.6 Add another constnat "initialInputState", which simply holds this object: "const initialInputState = { value: "", isTouched: false }"
+// 1.7 Add second argument in "useReducer": "useReducer(inputStateReducer, initialInputState)"
+// 1.8 UseReducer returns an array with exactly two elements. First element is always the state managed by the reducer and second element is always a dispatched fuction, which allows you to dispatch actions againts that reducer. ("const [inputState, dispatch] = useReducer()...")
+// 1.9 For validating the value: "const valueIsValid = validateValue(inputState.value)". Inputstate will have a value property (from "initalInputState") because that is the structure our state.
+// 1.10 For "hasError": get the touch state - "const hasError = !valueIsValid && inputState.isTouched"
+// 1.11 Now when "valueChangeHandler" executes we wanna "dispatch" an "action" againts our reducer. Often is an object: with a "type" property wjich identifies the action, and set "type" to a string called "INPUT" and it can also carry a payload, and here I'll value property to this object, which holds "event.target.value" as a value ("dispatch({ type: "INPUT", value: event.target.value })")
+// 1.12 We also wanna "dispatch" in the end "inputBlurHandler" ("dispatch({ type: "BLUR"})") value - no matter.
+// 1.13 For "reset" we can "dispatch" an object where to type is reset.("dispatch({ type: "RESET" })")
+// 1.14 In "return" we return a "value: inputState.value"
+// Now need to handle three actions "type": "INPUT","BLUR"","RESET" in "useReducer"
+// STEP: 2
+// 2.1 Add "ifcheck" "if(action.type === "INPUT")" and other 3.
+// 2.2 "return {value: action.value}" because in the input action case we will have a 'value: event.target.value' carries the entered value.
+// I don't wanna set "isTouched" to true, because we have a keystroke the user didn't finish typing yet.
+// 2.3 I will set "isTouched" to "state.isTouched" using the previous states "isTouched value" from "const = inputStateReducer = (state...."
+// 2.4 In Blur case I wanna return new object, and here I wanna set "isTouched" to true, because that is what we do when the inputs blurs. It should be marked as touched. Don't care about the value here ("value: state.value") - using the existing value.
+// 2.5 In reset I return an object where I said "isTouched" to false, and "value:"" " 9back to empty string to reset this.
+// ~~ USEREDUCER FUNCTION ~~
