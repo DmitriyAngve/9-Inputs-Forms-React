@@ -1,12 +1,16 @@
 // import { useEffect, useRef, useState } from "react";
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const SimpleInput = (props) => {
   // const nameInputRef = useRef();
   // const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
   const [enteredName, setEnteredName] = useState("");
   const [enteredNameTouched, setEnteredNameTouched] = useState(false);
-  const [formIsValid, setFormIsValid] = useState(false);
+  // Check validity with useEffect
+  // const [formIsValid, setFormIsValid] = useState(false);
+  // Check vailidity without useEffect
+  // const [formIsValid, setFormIsValid] = useState(false);
 
   // useEffect(() => {
   //   if (enteredNameIsValid) {
@@ -17,13 +21,20 @@ const SimpleInput = (props) => {
   const enteredNameIsValid = enteredName.trim() !== "";
   const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 
-  useEffect(() => {
-    if (enteredNameIsValid) {
-      setFormIsValid(true);
-    } else {
-      setFormIsValid(false);
-    }
-  }, [enteredNameIsValid]);
+  // Check validity with useEffect
+  // useEffect(() => {
+  //   if (enteredNameIsValid) {
+  //     setFormIsValid(true);
+  //   } else {
+  //     setFormIsValid(false);
+  //   }
+  // }, [enteredNameIsValid]);
+
+  // Check vailidity without useEffect
+  let formIsValid = false;
+  if (enteredNameIsValid) {
+    formIsValid = true;
+  }
 
   // 1 Approach
   const nameInputChangeHandler = (event) => {
@@ -183,5 +194,8 @@ export default SimpleInput;
 // 1.4 Add "if(enteredNameIsValid)" and if that valid, then I'll set my overall form as valid "setFormISValid(true)". Else, if at least one of my inouts is valid (in my case only one) I'll set my overall form to invalid: "setFormIsValid(false)"
 // 1.5 OPTIONAL: we can disable "submit" button if form is not valid. For this need add in JSX code: "<button disabled={!formIsValid}>Submit</button>"
 // 1.5.1 Add style for this disable: in index.css "button:disabled,..."
-
+// 1.6 OPTIONAL: let's impement without "useEffect()"
+// 1.6.1 Get rid off: "const [formIsValid, setFormIsValid] = useState(false)"
+// 1.6.2 Get rid off useState().
+// 1.6.3 Add a new variable "let formIsValid = false" which by default is false let's say. Which we then set to true in this if case "formIsValid=true" . And no need else case.
 // ~~ MANAGING THE OVERALL FORM VALIDITY ~~
