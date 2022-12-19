@@ -8,9 +8,26 @@ const useInput = (validateValue) => {
   const valueIsValid = validateValue(enteredValue);
   const hasError = !valueIsValid && isTouched;
 
+  const valueChangeHandler = (event) => {
+    setEnteredValue(event.target.value);
+  };
+
+  const inputBlurHandler = (event) => {
+    setIsTouched(true);
+  };
+
+  const reset = () => {
+    setEnteredValue("");
+    setIsTouched(false);
+  };
+
   return {
     value: enteredValue,
+    isValid: valueIsValid,
     hasError: hasError,
+    valueChangeHandler,
+    inputBlurHandler,
+    reset,
   };
 };
 
@@ -30,6 +47,15 @@ export default useInput;
 // 1.6 "const useInput = (validateValue) =>{..." add function "validateValue" as a parameter
 // 1.7 For more usefull this logic i replace: "const valueIsValid = validateValue(enteredValue)" - make more generic.
 // 1.8 This hook could return something - it could return an object, could also be an array. Then this object return the value which is entered value (" value: enteredValue,"). Return hasError which holds the result stored in hasError. "hasError" (in modern JavaScript we just listing this hasError once).
-// 1.9 Also need a way of letting the Components that uses this hook ("setEnteredValue" and "setIsTouched")
-
+// Also need a way of letting the Components that uses this hook ("setEnteredValue" and "setIsTouched")
+// 1.9 Create "const valueChangeHandler = (event) =>{..." and "const inputBlurHandler = (event) => {...".
+// 1.10 And when we return, I wanne expose those functions "return {   value: enteredValue, hasError: hasError, valueChangeHandler,    inputBlurHandler,};"
+// These functions which are defined in the hook can be called from the place where to hook is being used.
+// Let's use this CUSTOM HOOK in SimpleInput.js
+// GO TO ---->>>> SimpleInput.js
+// CAME FROM SimpleInput.js
+// STEP: 3
+// 3.1 add reset function where we simply call "setEnteredValue("")" and set this to empty string and "setIsTouched(false)"
+// 3.2 And just need to expose that: add to "return" reset fucntion as a value in a reset key in that overall returned object.
+// GO TO ---->>>> SimpleInput.js
 // ~~ ADDING A CUSTOM INPUT HOOK ~~

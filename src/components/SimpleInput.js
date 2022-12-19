@@ -1,15 +1,19 @@
 import { useState } from "react";
+import useInput from "../hooks/use-input";
 
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState("");
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const {
+    value: enteredName,
+    hasError: nameInputHasError,
+    isValid: enteredNameIsValid,
+    valueChangeHandler: nameChangeHandler,
+    inputBlurHandler: nameBlurHandler,
+    reset: resetNameInput,
+  } = useInput((value) => value.trim() !== "");
 
   // For E-mail
   const [enteredEmail, setEnteredEmail] = useState("");
   const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
-
-  const enteredNameIsValid = enteredName.trim() !== "";
-  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 
   // Enfer the validity for E-mail
   const enteredEmailIsValid = enteredEmail.includes("@");
@@ -21,19 +25,9 @@ const SimpleInput = (props) => {
     formIsValid = true;
   }
 
-  // 1 Approach
-  const nameInputChangeHandler = (event) => {
-    setEnteredName(event.target.value);
-  };
-
   // For E-mail
   const emailInputChangeHandler = (event) => {
     setEnteredEmail(event.target.value);
-  };
-
-  // Blur
-  const nameInputBlurHandler = (event) => {
-    setEnteredNameTouched(true);
   };
 
   // For E-mail
@@ -45,23 +39,20 @@ const SimpleInput = (props) => {
   const formSubmissionHandler = (event) => {
     event.preventDefault();
 
-    setEnteredNameTouched(true);
-
     if (!enteredNameIsValid) {
       return;
     }
 
     console.log(enteredName);
 
-    setEnteredName("");
-    setEnteredNameTouched(false);
+    resetNameInput();
 
     // For E-mail
     setEnteredEmail(""); // to reset that value
     setEnteredEmailTouched(false); // to reset that value
   };
 
-  const nameInputClasses = enteredNameIsValid
+  const nameInputClasses = nameInputHasError
     ? "form-control invalid"
     : "form-control";
 
@@ -78,11 +69,11 @@ const SimpleInput = (props) => {
           // ref={nameInputRef}
           type="text"
           id="name"
-          onChange={nameInputChangeHandler}
-          onBlur={nameInputBlurHandler}
+          onChange={nameChangeHandler}
+          onBlur={nameBlurHandler}
           value={enteredName}
         />
-        {nameInputIsInvalid && (
+        {nameInputHasError && (
           <p className="error-text">Name must not be empty</p>
         )}
       </div>
@@ -216,7 +207,28 @@ export default SimpleInput;
 //
 
 // ~~ ADDING A CUSTOM INPUT HOOK ~~
+// CAME FROM use-inout.js
+
+// STEP 2:
+// 2.1 Import use-input.js
+// 2.2 Call "useInput" in "SimpleInput" and then extract values from the result returned by "useInput". "useInput" returns such am object and we can use object destructuring to pull out those keys from that returned object and store the values and brand new constants (" const { value: enteredName. hasError: nameInputHasError, valueChangeHandler: nameChangeHandler, inputBlurHandler:nameBlurHandler } = useInput();")
+// We also need to pass a value into the hook, and that's "validateValue" (in use-input.js argumnet of "useInput") function, which we call here
+// 2.3 We get some value in "useInput" and then return the result of calling trim on that value and comparing it with an empty string ("...= useInput("value => value.trim() !== "")") This anonymous function is actually executed in "const valueIsValid = validateValue(enteredValue)" from use-input.js. And "enteredValue" which is this state we're managing is the value passed into this "value => value.trim() !== """ function
+// 2.4 To expose just the validity of an input to the Component I will also return "valueIsValid" in use-input.js (return) "isValid: valueIsValid"
+// 2.5 In "SimpleInput" component i can also extract "isValid: enteredNameIsValid".
+// 2.6 Connect JSX code to new handlers. ("nameChangeHandler" and "nameBlurHandler")
+// 2.7 And "{nameInputHasError && ( <p className="error-text">Name must not be empty</p>)}" from custom hook
+// 2.8 For "formSubmissionHandler", where I want to change the touch status and where I want to reset the form: rid this code, because form can't be submitted if the inputs are invalid anyways, but reseting the form we remove to use-input.js
+// GO TO use-input.js ->>>>
+
+// CAME FROM use-inout.js
+// STEP: 4
+// 4.1 After this we can get access to this reset function named it "resetNameInput"
+// 4.2 In "formSubmissionHandler" call "resetNameInput"
+// STEP: 5
+// 5.1 "const nameInputClasses = nameInputHasError..." replace to "nameInputHasError"
 //
+
 // ~~ ADDING A CUSTOM INPUT HOOK ~~
 
 ////////////////////////////////////////////////////////////////////
