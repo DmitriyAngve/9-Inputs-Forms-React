@@ -35,7 +35,6 @@ const SimpleInput = (props) => {
     }
 
     console.log(enteredName);
-
     resetNameInput();
     resetEmailInput();
   };
